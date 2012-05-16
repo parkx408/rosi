@@ -7,6 +7,8 @@ use strict;
 my $cfg_path = shift @ARGV or die "Specify IO meter experiement configuration file";
 my %cfg = ();
 
+my $spec_path = shift @ARGV or die "Specify Test Vector file";
+
 sub read_cfg {
 	my $line;
 
@@ -253,21 +255,61 @@ sub set_manager {
 		#print( scalar keys(%manager_list) );
 	}
 }
-	
+
+my %workload=();	
+open WL, "<$spec_path" or die "Can't open spec file $spec_path\n";
+while (<WL>) {
+	chomp ($_);
+	my @val;
+	@val =  split(' ', $_);
+	my $len = scalar @val - 1;
+	my @work = @val[1 .. $len];
+	$workload{$val[0]} =  \@work;
+	#print @val[1 .. $len];
+	#pop(@val);
+	#print "@{$workload{"E1"}}\n"
+}
+
 sub print_manager_list {
 	set_manager();
-	$manager_id=0;
+	my $manager_id=0;
 	print "'MANAGER LIST ==================================================================\n";
 	while (my($manager, $ip) = each(%ip_list)) {
 		$manager_name = $manager;
 		$manager_ip = $ip;
 		$manager_id = $manager_id+1;
 		print "'Manager ID, manager name\n";
-		print "  $manager_id,$manager_name\n";
+		print "  $manager_id, $manager_name\n";
 		print "'Manager network address\n";
 		print "  $manager_ip\n";
-			
+		my $worker_id=0;
+		while (my ($target, $ds_name) = each (%{$worker_list{$manager_name}})) {
+			$worker_id++;
+			print "'Worker\n";
+			print "  $worker $worker_id\n";
+			print "'Worker type\n";
+			print "  $worker_type\n";
+			print "'Default target settings for worker\n";
+			print "'Number of outstanding IOs,test connection rate,transactions per connection\n";
+			print "  $oio,$test_connection,$transaction_per_connection\n";
+			print "'Disk maximum size,starting sector\n";
+			print "  $max_disk_size,$starting_disk_sector\n";
+			print "'End default target settings for worker\n";
+			print "@{$workload{$ds_name}}";
+			print "'End assigned access specs\n";
+			print "'Target assignments\n";
+			print "'Target\n";
+			print "  $target\n";
+			print "'Target Type\n";
+			print "  $target_type\n";
+			print "'End target\n";
+			print "'End target assignments\n";
+			print "'End worker\n";
+		}#End worker definition 
+		
+		print "'End manager\n";	
 	}
+	print "'END manager list\n";
 }
 
 #		$target = @$manager[2];
