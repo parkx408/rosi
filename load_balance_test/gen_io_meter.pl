@@ -255,8 +255,10 @@ sub print_access_specifications {
 
 my %ip_list=();
 my %worker_list=();
+my $aggr=5;
 sub set_manager {
 	$oio = $cfg{'OIO'};
+	$aggr = $cfg{'Aggr'};
 	foreach my $manager (@{$cfg{ 'Managers' }}) {
 		$ip_list{@$manager[0]}=@$manager[1];
 		$worker_list{@$manager[0]}{@$manager[2]} = @$manager[3];
