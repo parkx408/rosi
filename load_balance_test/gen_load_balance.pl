@@ -28,8 +28,8 @@ my @ds = (
 	"N2"
 );
 
-my $max_aggr=5;
-my $number_of_test=100;
+my $max_aggr=4;
+my $number_of_test=1;
 #Initial test 
 open OUT, ">test" or die $!;
 foreach (@ds) {

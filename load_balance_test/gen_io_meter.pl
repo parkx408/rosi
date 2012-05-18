@@ -62,6 +62,15 @@ sub read_cfg {
 				die "Configuration file needs to specify OIO";
 			}
 		}
+		elsif ($_ =~ m/^#Max Aggr/) {
+			$line = <CFG>;
+			chomp($line);
+			if ($line) {
+				$cfg{ 'Aggr' } = $line;
+			} else {
+				die "Configuration file needs to specify maximum number of aggregation";
+			}
+		}
 		elsif ($_ =~ m/^#specs/) {
 			$line = <CFG>;
 			chomp($line);
@@ -225,14 +234,14 @@ sub set_specification {
 	push (@specifications, ["Idle", 0, 0, 0]);
 	push (@specifications, ["Idle", 0, 0, 0]);
 	push (@specifications, ["Idle", 0, 0, 0]);
+	push (@specifications, ["Idle", 0, 0, 0]);
+	push (@specifications, ["Idle", 0, 0, 0]);
 	foreach my $spec_ (@{$cfg{ 'Specs' }}) {
 		push (@specifications, $spec_);
 	}
 }	
 
-
 sub print_access_specifications {
-	#set_auto_access_specification();
 	set_specification();
 	print "'ACCESS SPECIFICATIONS =========================================================\n";
 	foreach my $spec (@specifications) {
@@ -246,13 +255,11 @@ sub print_access_specifications {
 
 my %ip_list=();
 my %worker_list=();
-
 sub set_manager {
+	$oio = $cfg{'OIO'};
 	foreach my $manager (@{$cfg{ 'Managers' }}) {
 		$ip_list{@$manager[0]}=@$manager[1];
 		$worker_list{@$manager[0]}{@$manager[2]} = @$manager[3];
-		#print(%{$manager_list{@$manager[0,1]}});
-		#print( scalar keys(%manager_list) );
 	}
 }
 
@@ -265,9 +272,6 @@ while (<WL>) {
 	my $len = scalar @val - 1;
 	my @work = @val[1 .. $len];
 	$workload{$val[0]} =  \@work;
-	#print @val[1 .. $len];
-	#pop(@val);
-	#print "@{$workload{"E1"}}\n"
 }
 
 sub print_manager_list {
@@ -295,7 +299,7 @@ sub print_manager_list {
 			print "'Disk maximum size,starting sector\n";
 			print "  $max_disk_size,$starting_disk_sector\n";
 			print "'End default target settings for worker\n";
-			print "@{$workload{$ds_name}}";
+			print join("\n", @{$workload{$ds_name}});
 			print "'End assigned access specs\n";
 			print "'Target assignments\n";
 			print "'Target\n";
@@ -312,69 +316,8 @@ sub print_manager_list {
 	print "'END manager list\n";
 }
 
-#		$target = @$manager[2];
-#		my $j = int(rand(3))+1;
-#		my $specs = @$manager[4];
-#		my $num_workers = @$manager[5];
-#		print "'Manager ID, manager name\n";
-#		print "  $manager_id,$manager_name\n";
-#		print "'Manager network address\n";
-#		print "  $manager_ip\n";
-
-		#Begin worker definition
-#		for (my $i = 1; $i <= 4; $i++) { 
-#			print "'Worker\n";
-#			print "  $worker $i\n";
-#			print "'Worker type\n";
-#			print "  $worker_type\n";
-#			print "'Default target settings for worker\n";
-#			print "'Number of outstanding IOs,test connection rate,transactions per connection\n";
-#			print "  $oio,$test_connection,$transaction_per_connection\n";
-#			print "'Disk maximum size,starting sector\n";
-#			print "  $max_disk_size,$starting_disk_sector\n";
-#			print "'End default target settings for worker\n";
-#			print "'Assigned access specs\n";
-##			if ($specs eq "auto") {
-##				my $i = 0;
-##				for ($i=0; $i<$repetition; $i++) {
-##					foreach (@specifications) {
-##						print "  @$_[0]\n";
-##					}
-##				}
-##			}
-##			elsif ($specs eq "manual") {
-##				my $k;
-##				for ($k=0; $k<100; $k++) {
-##					my $i = int(rand(14));
-##					print " $specifications[$i][0]\n";
-##				}
-##			}
-#
-#			print "'End assigned access specs\n";
-#			print "'Target assignments\n";
-#			print "'Target\n";
-#			print "  $target\n";
-#			print "'Target Type\n";
-#			print "  $target_type\n";
-#			print "'End target\n";
-#			print "'End target assignments\n";
-#			print "'End worker\n";
-#		}#End worker definition 
-#		
-#		print "'End manager\n";	
-#	}
-#	print "'END manager list\n";
-#}
 
 read_cfg();
-#while( my ($k, $v) = each %cfg ) {
-#	if (ref($v) eq 'ARRAY') {
-#  	print "key: $k, value: @$v.\n";
-#	}
-#	else {
-#      print "key: $k, value: $v.\n";
-#  }
-#}
 print_version();
 print_test_setup();
 print_result_display();
