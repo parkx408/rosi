@@ -290,28 +290,36 @@ sub print_manager_list {
 		print "  $manager_ip\n";
 		my $worker_id=0;
 		while (my ($target, $ds_name) = each (%{$worker_list{$manager_name}})) {
-			$worker_id++;
-			print "'Worker\n";
-			print "  $worker $worker_id\n";
-			print "'Worker type\n";
-			print "  $worker_type\n";
-			print "'Default target settings for worker\n";
-			print "'Number of outstanding IOs,test connection rate,transactions per connection\n";
-			print "  $oio,$test_connection,$transaction_per_connection\n";
-			print "'Disk maximum size,starting sector\n";
-			print "  $max_disk_size,$starting_disk_sector\n";
-			print "'End default target settings for worker\n";
-			print join("\n", @{$workload{$ds_name}});
-			print "'End assigned access specs\n";
-			print "'Target assignments\n";
-			print "'Target\n";
-			print "  $target\n";
-			print "'Target Type\n";
-			print "  $target_type\n";
-			print "'End target\n";
-			print "'End target assignments\n";
-			print "'End worker\n";
-		}#End worker definition 
+			my $i;
+			for ($i=0; $i<$aggr; $i++) {
+				$worker_id=$i+1;
+				print "'Worker\n";
+				print "  $ds_name $worker_id\n";
+				print "'Worker type\n";
+				print "  $worker_type\n";
+				print "'Default target settings for worker\n";
+				print "'Number of outstanding IOs,test connection rate,transactions per connection\n";
+				print "  $oio,$test_connection,$transaction_per_connection\n";
+				print "'Disk maximum size,starting sector\n";
+				print "  $max_disk_size,$starting_disk_sector\n";
+				print "'End default target settings for worker\n";
+				print "'Assigned access specs\n";
+				my $j;
+				my $rep = scalar (@{$workload{$ds_name}});
+				for ($j=$i; $j<$rep; $j=$j+$aggr) {
+					print "@{$workload{$ds_name}}[$j]\n";
+				}
+				print "'End assigned access specs\n";
+				print "'Target assignments\n";
+				print "'Target\n";
+				print "  $target\n";
+				print "'Target Type\n";
+				print "  $target_type\n";
+				print "'End target\n";
+				print "'End target assignments\n";
+				print "'End worker\n";
+			}#End worker definition 
+		}
 		
 		print "'End manager\n";	
 	}

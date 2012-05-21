@@ -1,6 +1,8 @@
 #!/home/parkx408/root/bin/Rscript --verbose
 #!/usr/bin/Rscript --verbose
 
+rm(list=ls());
+
 #Load 200 load-balance test initial state
 W1<-read.table("rosi_data/lb_initial_placement1.out", header=T);
 W2<-read.table("rosi_data/lb_initial_placement2.out", header=T);
@@ -10,6 +12,7 @@ W.E1<-W1[W1$datastore=="emc-3disk-raid0",];
 W.E2<-W2[W2$datastore=="emc-5disk-sp",];
 W.N1<-W2[W2$datastore=="netapp-7disk-sp",];
 W.N2<-W1[W1$datastore=="srs7diskfc-netapp",];
+rm(W1, W2);
 
 #anonymize data store names
 W.E1$datastore<-"E1";
@@ -33,6 +36,7 @@ load("RData/N1_fit.RData");
 pm[["N1"]]<-klq.fit;
 load("RData/N2_fit.RData");
 pm[["N2"]]<-klq.fit;
+rm(ds.data, filter, fit, kfit, klq.fit, lq.fit, read.err, size.err);
 
 #input data[,1] = random%
 #input data[,2] = throughput(IOPS)
@@ -118,6 +122,7 @@ W.N2$lq<-predict(pm$N2,W.N2[,c(2,3,4)],interval="prediction")
 
 #workload state
 W<-rbind(W.E1, W.E2, W.N1, W.N2);
+rm(W.E1, W.E2, W.N1, W.N2);
 
 W$iops<-1/W$lq*1000;
 
@@ -159,16 +164,16 @@ fn.new.char<-function(S,W) {
 	return(w_test);
 }
 
-w_test<-fn.new.char(S,W);
+#w_test<-fn.new.char(S,W);
 #VM latency test
-pdf("vm_latency_prediction_with_interference.pdf", width=6, height=6, onefile=F);
-matplot(cbind(W[,c(6,8)], w_test[,8]), pch=1:7, lty=1:7, type="b");
-legend("topleft", c("measured", "predicted", "upper", "lower", "pred_new", "upper_new", "lower_new"), pch=1:7, lty=1:7);
-dev.off();
+#pdf("vm_latency_prediction_with_interference.pdf", width=6, height=6, onefile=F);
+#matplot(cbind(W[,c(6,8)], w_test[,8]), pch=1:7, lty=1:7, type="b");
+#legend("topleft", c("measured", "predicted", "upper", "lower", "pred_new", "upper_new", "lower_new"), pch=1:7, lty=1:7);
+#dev.off();
 
 
 
-updateMerit<-function(W, S, State) {
+fn.updateMerit<-function(W, S, State) {
 	w.src<-fn.W(fn.S(W));
 	w.dst<-fn.W(S);
 }
