@@ -139,7 +139,7 @@ W$iops_high<-1/W$lq_low*1000;
 #FIXME: using list was stupid => change to data frame
 S<-by (W[,c("random", "read", "size", "oio", "iops_pred")], list(W$datastore), fn.aggr);
 S<-do.call(rbind, S);
-S$datastore<-as.factors(row.names(S));
+S$datastore<-as.factor(row.names(S));
 
 pred<-apply(S,1, function(x)(predict(pm[[x["datastore"]]], data.frame(random=as.numeric(x["random"]), read=as.numeric(x["read"]), size=as.numeric(x["size"])), interval="prediction")));
 
@@ -184,14 +184,14 @@ S$iops_high<-1/S$lq_low*1000;
 #
 #
 
-fn.W<-function(S) {
-	W<-W$VM[W$datastore==S];
-	return (W);
+fn.W<-function(s) {
+	w<-W$VM[W$datastore==s];
+	return (w);
 }
 
-fn.S<-function(W) {
-	S<-W$datastore[W$VM==W];
-	return(S);
+fn.S<-function(w) {
+	s<-W$datastore[W$VM==w];
+	return(s);
 }
 
 fn.Merit<-function(P) {
@@ -201,6 +201,7 @@ fn.Merit<-function(P) {
 fn.updateMerit<-function(W, S, State) {
 	w.src<-fn.W(fn.S(W));
 	w.dst<-fn.W(S);
+#	w.src.new<-
 	
 	
 }
@@ -218,6 +219,6 @@ fn.goodness<-function(E, Enew) {
 	}
 }
 		
-fn.loadbalance<-function(S,W) {
-	merit<-fn.Merit(S$lat_pred);
-	W.new<-fn.minimizeMerit(S, W, merit);
+#fn.loadbalance<-function(S,W) {
+#	merit<-fn.Merit(S$lat_pred);
+#	W.new<-fn.minimizeMerit(S, W, merit);
