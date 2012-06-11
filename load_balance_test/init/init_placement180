@@ -1,0 +1,4 @@
+E1 oltp_db web_file_server2 web_server_log workstations decision_support_db 
+E2 decision_support_db os_paging os_paging Idle Idle 
+N1 exchange_server sql_server_log Idle workstations decision_support_db 
+N2 web_file_server1 Idle Idle Idle os_paging 

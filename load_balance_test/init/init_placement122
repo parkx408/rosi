@@ -1,0 +1,4 @@
+E1 Idle Idle web_file_server2 os_paging web_file_server3 
+E2 exchange_server Idle web_file_server1 decision_support_db Idle 
+N1 Idle web_file_server2 Idle web_file_server1 Idle 
+N2 os_paging Idle web_file_server1 Idle Idle 

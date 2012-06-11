@@ -1,0 +1,4 @@
+E1 Idle media_streaming sql_server_log web_server_log Idle 
+E2 vod Idle exchange_server media_streaming web_file_server2 
+N1 web_server_log web_file_server2 sql_server_log Idle web_file_server2 
+N2 sql_server_log workstations Idle sql_server_log Idle 

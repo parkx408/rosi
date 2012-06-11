@@ -1,0 +1,4 @@
+E1 workstations exchange_server media_streaming os_paging Idle 
+E2 Idle decision_support_db workstations Idle os_paging 
+N1 Idle Idle web_file_server2 Idle Idle 
+N2 Idle Idle Idle Idle Idle 

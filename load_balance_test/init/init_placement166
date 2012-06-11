@@ -1,0 +1,4 @@
+E1 web_file_server1 exchange_server Idle Idle oltp_db 
+E2 oltp_db oltp_db web_server_log Idle Idle 
+N1 workstations oltp_db Idle workstations Idle 
+N2 Idle Idle sql_server_log os_paging Idle 

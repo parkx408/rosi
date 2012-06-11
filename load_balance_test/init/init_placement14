@@ -1,0 +1,4 @@
+E1 web_file_server2 web_file_server2 vod web_file_server3 sql_server_log 
+E2 Idle web_file_server3 workstations Idle os_paging 
+N1 os_paging web_file_server3 web_file_server3 sql_server_log workstations 
+N2 web_server_log Idle workstations exchange_server web_file_server1 

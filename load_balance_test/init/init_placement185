@@ -1,0 +1,4 @@
+E1 media_streaming sql_server_log sql_server_log Idle os_paging 
+E2 media_streaming Idle vod decision_support_db decision_support_db 
+N1 Idle Idle oltp_db media_streaming Idle 
+N2 exchange_server Idle Idle sql_server_log Idle 

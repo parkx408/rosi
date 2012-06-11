@@ -1,0 +1,4 @@
+E1 Idle vod exchange_server decision_support_db vod 
+E2 Idle sql_server_log Idle vod Idle 
+N1 Idle Idle Idle web_server_log Idle 
+N2 Idle Idle media_streaming Idle Idle 

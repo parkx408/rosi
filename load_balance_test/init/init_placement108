@@ -1,0 +1,4 @@
+E1 Idle os_paging web_server_log os_paging Idle 
+E2 Idle Idle os_paging Idle web_server_log 
+N1 sql_server_log Idle Idle Idle decision_support_db 
+N2 Idle Idle os_paging Idle Idle 

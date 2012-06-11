@@ -1,0 +1,4 @@
+E1 Idle Idle web_file_server2 web_file_server3 Idle 
+E2 os_paging Idle decision_support_db Idle decision_support_db 
+N1 Idle web_server_log decision_support_db media_streaming Idle 
+N2 media_streaming workstations workstations vod workstations 

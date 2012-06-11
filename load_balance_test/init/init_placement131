@@ -1,0 +1,4 @@
+E1 Idle web_file_server3 oltp_db vod Idle 
+E2 os_paging Idle media_streaming Idle Idle 
+N1 Idle vod Idle media_streaming exchange_server 
+N2 vod Idle Idle oltp_db Idle 

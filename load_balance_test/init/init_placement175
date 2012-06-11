@@ -1,0 +1,4 @@
+E1 exchange_server sql_server_log Idle Idle Idle 
+E2 workstations Idle Idle Idle workstations 
+N1 Idle web_file_server2 web_file_server2 Idle Idle 
+N2 web_file_server3 vod web_server_log vod decision_support_db 

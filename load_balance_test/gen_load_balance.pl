@@ -7,6 +7,13 @@ my @spec = (
 	"Idle",
 	"Idle",
 	"Idle",
+	"Idle",
+	"Idle",
+	"Idle",
+	"Idle",
+	"Idle",
+	"Idle",
+	"Idle",
 	"web_file_server1", 
 	"web_file_server2", 
 	"web_file_server3", 
@@ -14,7 +21,7 @@ my @spec = (
 	"media_streaming", 
 	"sql_server_log", 
 	"os_paging",
-	"web_serber_log", 
+	"web_server_log", 
 	"oltp_db",
 	"exchange_server", 
 	"workstations", 
@@ -28,27 +35,29 @@ my @ds = (
 	"N2"
 );
 
-my $max_aggr=4;
+my $max_aggr=5;
 my $number_of_test=1;
 #Initial test 
 open OUT, ">test" or die $!;
 foreach (@ds) {
-	print OUT "$_ @spec[3 .. 14]\n";
+	print OUT "$_ @spec[10 .. 21]\n";
 }
 close OUT;
 
 #Initial placement
-open OUT, ">init_placement" or die $!;
+for (my $j=0; $j<200; $j++) {
+open OUT, ">init/init_placement$j" or die $!;
 foreach (@ds) {
 	print OUT "$_ ";
 	for (my $i=0; $i<$max_aggr; $i++) {
 		for (my $k=0; $k<$number_of_test; $k++) {
-			my $j = int(rand(15));
+			my $j = int(rand(22));
 			print OUT "$spec[$j] ";
 		}
 	}
 	print OUT "\n";
 }
 close(OUT);
+}
 
 print "test and init_placement files created!\n";

@@ -1,0 +1,4 @@
+E1 Idle Idle oltp_db web_server_log web_file_server3 
+E2 web_file_server3 web_file_server1 Idle Idle Idle 
+N1 Idle Idle Idle oltp_db web_server_log 
+N2 Idle Idle web_server_log Idle vod 

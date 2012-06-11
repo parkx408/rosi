@@ -1,0 +1,4 @@
+E1 decision_support_db os_paging vod Idle vod 
+E2 sql_server_log web_file_server2 Idle Idle sql_server_log 
+N1 Idle Idle decision_support_db oltp_db web_file_server2 
+N2 decision_support_db Idle Idle web_server_log web_file_server2 

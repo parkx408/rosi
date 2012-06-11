@@ -1,0 +1,4 @@
+E1 Idle Idle Idle Idle os_paging 
+E2 Idle os_paging os_paging Idle decision_support_db 
+N1 sql_server_log Idle decision_support_db Idle web_file_server3 
+N2 Idle Idle oltp_db Idle media_streaming 

@@ -255,7 +255,7 @@ sub print_access_specifications {
 
 my %ip_list=();
 my %worker_list=();
-my $aggr=5;
+my $aggr=8;
 sub set_manager {
 	$oio = $cfg{'OIO'};
 	$aggr = $cfg{'Aggr'};
@@ -294,7 +294,7 @@ sub print_manager_list {
 			for ($i=0; $i<$aggr; $i++) {
 				$worker_id=$i+1;
 				print "'Worker\n";
-				print "  $ds_name $worker_id\n";
+				print "  $ds_name-$worker_id\n";
 				print "'Worker type\n";
 				print "  $worker_type\n";
 				print "'Default target settings for worker\n";
@@ -334,4 +334,42 @@ print_result_display();
 print_access_specifications();
 print_manager_list();
 print_version();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

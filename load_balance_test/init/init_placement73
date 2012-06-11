@@ -1,0 +1,4 @@
+E1 web_server_log Idle Idle Idle Idle 
+E2 web_server_log Idle sql_server_log decision_support_db decision_support_db 
+N1 web_file_server1 Idle Idle Idle Idle 
+N2 decision_support_db web_server_log workstations Idle media_streaming 

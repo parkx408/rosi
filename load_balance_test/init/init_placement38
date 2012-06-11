@@ -1,0 +1,4 @@
+E1 web_file_server1 oltp_db Idle Idle Idle 
+E2 web_server_log Idle oltp_db os_paging web_file_server1 
+N1 workstations Idle Idle Idle Idle 
+N2 sql_server_log media_streaming web_file_server3 Idle Idle 

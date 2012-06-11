@@ -1,0 +1,4 @@
+E1 vod web_server_log Idle os_paging Idle 
+E2 web_file_server2 web_file_server3 Idle web_server_log web_file_server3 
+N1 Idle web_server_log web_file_server1 web_server_log web_server_log 
+N2 web_file_server2 exchange_server Idle Idle vod 

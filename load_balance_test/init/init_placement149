@@ -1,0 +1,4 @@
+E1 workstations sql_server_log Idle Idle web_server_log 
+E2 decision_support_db web_file_server2 web_server_log exchange_server Idle 
+N1 Idle exchange_server os_paging Idle Idle 
+N2 Idle Idle Idle Idle Idle 

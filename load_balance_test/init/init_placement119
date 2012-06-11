@@ -1,0 +1,4 @@
+E1 Idle exchange_server web_file_server2 Idle decision_support_db 
+E2 exchange_server Idle Idle Idle media_streaming 
+N1 Idle vod web_file_server1 workstations Idle 
+N2 Idle Idle Idle web_file_server3 Idle 

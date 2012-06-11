@@ -1,0 +1,4 @@
+E1 Idle Idle sql_server_log web_file_server3 web_file_server3 
+E2 Idle media_streaming Idle sql_server_log os_paging 
+N1 Idle oltp_db vod vod Idle 
+N2 os_paging media_streaming Idle sql_server_log vod 

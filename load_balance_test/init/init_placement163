@@ -1,0 +1,4 @@
+E1 Idle Idle Idle Idle sql_server_log 
+E2 Idle web_file_server1 oltp_db web_server_log Idle 
+N1 web_file_server1 sql_server_log Idle Idle web_server_log 
+N2 Idle Idle Idle exchange_server Idle 

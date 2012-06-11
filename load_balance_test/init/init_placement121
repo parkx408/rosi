@@ -1,0 +1,4 @@
+E1 Idle Idle Idle workstations Idle 
+E2 workstations Idle web_file_server3 vod Idle 
+N1 sql_server_log oltp_db Idle Idle web_file_server1 
+N2 Idle web_file_server3 Idle web_file_server3 Idle 

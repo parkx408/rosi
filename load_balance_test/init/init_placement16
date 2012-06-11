@@ -1,0 +1,4 @@
+E1 web_server_log Idle web_file_server3 Idle web_server_log 
+E2 Idle media_streaming media_streaming Idle Idle 
+N1 web_file_server1 exchange_server Idle web_server_log web_file_server2 
+N2 Idle oltp_db web_file_server3 Idle Idle 

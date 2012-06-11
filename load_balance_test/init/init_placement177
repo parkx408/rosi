@@ -1,0 +1,4 @@
+E1 media_streaming os_paging exchange_server sql_server_log web_file_server1 
+E2 Idle web_file_server2 vod sql_server_log web_server_log 
+N1 os_paging Idle web_file_server2 Idle os_paging 
+N2 Idle Idle Idle Idle sql_server_log 

@@ -1,0 +1,4 @@
+E1 decision_support_db decision_support_db Idle Idle vod 
+E2 Idle Idle oltp_db Idle Idle 
+N1 Idle Idle Idle web_file_server2 Idle 
+N2 os_paging Idle Idle exchange_server decision_support_db 

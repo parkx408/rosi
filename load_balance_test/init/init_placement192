@@ -1,0 +1,4 @@
+E1 decision_support_db media_streaming web_file_server2 decision_support_db Idle 
+E2 Idle vod sql_server_log Idle oltp_db 
+N1 web_file_server3 Idle Idle web_file_server1 Idle 
+N2 oltp_db Idle media_streaming Idle decision_support_db 

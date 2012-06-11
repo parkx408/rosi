@@ -1,0 +1,4 @@
+E1 Idle vod sql_server_log web_file_server1 Idle 
+E2 sql_server_log workstations web_server_log Idle Idle 
+N1 web_server_log Idle Idle Idle Idle 
+N2 decision_support_db Idle Idle workstations Idle 
