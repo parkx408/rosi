@@ -6,6 +6,7 @@
 ##################
 rm(list=ls());
 
+set.seed(1);
 full.run<-"single-test"; #output file name
 min_lq<-0.1;	#min_lq for negative predition
 
@@ -230,7 +231,7 @@ fn.updateMerit<-function(w.cand, s.cand, W, S) {
 	p<-S[,c("lat_pred", "lat_low", "lat_high")];
 	p[as.character(s.src),]<-lat.pred.src;
 	p[as.character(s.cand),]<-lat.pred.dst;
-	##print (p)
+	#print (p)
 	merit<-apply(p, 2, fn.Merit);
 	return (merit);
 }
@@ -253,6 +254,8 @@ fn.goodness<-function(E, Enew, T) {
 		return (1);
 	}
 }
+
+cl<-1;
 
 fn.minimize.merit<-function(W.i, S.i, merit.i) {
 	max.cycle<-200;
@@ -332,7 +335,17 @@ fn.minimize.merit<-function(W.i, S.i, merit.i) {
 		}
 		K<-K+1;
 	}
-	plot(m.list);
+	#if (dev.cur() == 1) {
+		#pdf("sim_aneal_rate.pdf", width=6, height=6, onefile=F);
+		#plot(m.list, ylim=c(50, 790), type="l", xlim=c(1,17), xlab="Sequence of accepted state changes", ylab="Merit");
+		#cl<<-cl+1;
+	#}
+	#else {
+		#print(cl);
+		#lines(m.list, col=cl%%7);
+		#cl<<-cl+1;
+	#}
+
 	##print (m.list);
 	return (list(S=S.f, W=W.f, m=m.f));
 }
@@ -348,6 +361,8 @@ fn.load.balance<-function(S,W) {
 	#print(moved);
 	
 	m.next<-m.i;
+	ds.lat<-list();
+	ds.lat[["init"]]<-c(S$lat_pred, m.i);
 	for (i in 1:nrow(moved)) {
 		for (j in 1:nrow(moved)) {
 			m.new<-fn.updateMerit(moved[j,1], moved[j,2], W, S);
@@ -358,7 +373,7 @@ fn.load.balance<-function(S,W) {
 		if (m.list[1,1] > m.next) {
 		#	#print(m.next);
 		#	#print(m.list);
-			next();
+			break();
 		}
 		print( paste("Move VM", m.list[1,4], W$workload[W$VM==m.list[1,4]], "of", fn.S(m.list[1,4]), "to", m.list[1,5], ":", m.next[1], "->", m.list[1,1]));
 		m.next<-m.list[1,1];
@@ -407,6 +422,8 @@ fn.load.balance<-function(S,W) {
     S$iops_low<-1/S$lq_high*1000;
     S$iops_high<-1/S$lq_low*1000;
 
+		ds.lat[[i+1]]<-c(S$lat_pred, m.next);
+		
 		#print(W);
 		#print(S);
 		out<-list();
@@ -434,15 +451,14 @@ fn.load.balance<-function(S,W) {
 	}
 	print (paste("final merit", m.next));
 	print("");
-	return(list(S=S,W=W,m=m.next, o=data));	
+	return(list(S=S,W=W,m=m.next, o=data, d=ds.lat));	
 }
-
 
 #Load load-balance test initial state
 init<-list.files("load_balance_test/init");
 Idle<-c("Idle", "Idle", "Idle", "Idle");
 S.f<-list();
-for (i in init) {
+for (i in init[1:6]) {
 	data<-read.table(paste("load_balance_test/init/",i, sep=""));
 	data<-cbind(data, Idle, Idle, Idle);
 	#print (data);
