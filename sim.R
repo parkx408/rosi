@@ -10,7 +10,7 @@ set.seed(1);
 full.run<-"single-test"; #output file name
 min_lq<-0.1;	#min_lq for negative predition
 
-workload<-read.table("load_balance_test/load_balance_test.cfg", skip=16, nrows=12, row.names=1, col.names=c("workload", "random", "read", "size"), header=F); #Get workload specification
+workload<-read.table("load_balance_test/load_balance_test.cfg", skip=16, nrows=12, row.names=1, col.names=c("workload", "random", "read", "size"), header=F); #Get workload specifi#cation
 oio<-scan("load_balance_test/load_balance_test.cfg", skip=13, nlines=1);	#Get oio
 #Load romano model for each data store
 pm<-list();
@@ -60,6 +60,9 @@ fn.avg.rand<-function(data) {
 #return lseek = average_lseek%
 fn.lseek<-function(data, w.mean) {
 	n.workload<-nrow(data);
+	if (n.workload == 0) {
+		return (0);
+	}
   lseek<-(min(data[,2])/sum(data[,2]))*n.workload*w.mean;
   return (lseek);
 }
@@ -93,7 +96,7 @@ fn.aggr.size<-function(data) {
 #input data[,1] = oio
 #return oio = aggregated_oio
 fn.aggr.oio<-function(data) {
-	##print(data);
+	###print(data);
   oio<-sum(data[,1]);
   return (oio);
 }
@@ -114,7 +117,7 @@ fn.aggr.latency<-function(data) {
 #input data[,6] = predicted_lq_slope
 #return aggr = aggrgated_characteristics
 fn.aggr<-function(data) {
-	##print(data);
+	###print(data);
   random<-fn.aggr.rand(data[,c(1,5)]);
   read<-fn.aggr.read(data[,c(2,5)]);
   size<-fn.aggr.size(data[,c(3,5)]);
@@ -177,12 +180,12 @@ fn.generate.S <- function (W, pm) {
 ################
 #Load Balancing#
 ################
-fn.W<-function(s) {
+fn.W<-function(s, W) {
 	w<-W$VM[W$datastore==s];
 	return (w);
 }
 
-fn.S<-function(w) {
+fn.S<-function(w, W) {
 	s<-W$datastore[W$VM==w];
 	return(s);
 }
@@ -193,35 +196,42 @@ fn.Merit<-function(P) {
 }
 
 fn.updateMerit<-function(w.cand, s.cand, W, S) {
-	s.src<-fn.S(w.cand);
-	w.src<-fn.W(s.src);								#get all workloads at source
-	w.dst<-fn.W(s.cand);							#get all workloads at dest
+	#cat("Update Merit===================================\n");
+	#cat("Moving ", w.cand, " to ", s.cand, "\n"); 
+
+	#print (W);
+	s.src<-fn.S(w.cand, W);
+	w.src<-fn.W(s.src, W);								#get all workloads at source
+	w.dst<-fn.W(s.cand, W);							#get all workloads at dest
 	w.src.new<-w.src[w.src!=w.cand]; 	#remove w.cand from source
 	w.dst.new<-c(w.dst, w.cand);			#add w.cand to dest
-	##print (w.src.new);
-	##print (w.dst.new);
-
+	###print (w.src.new);
+	###print (w.dst.new);
+	#cat("Source - before\n");
+	#print (w.src);
+	#cat("Source - after\n");
+	#print (w.src.new);
 	#predicting new aggregation
 	lq.pred.cand<-predict(pm[[s.cand]], W[W$VM==w.cand, c("random", "read", "size")], interval="prediction");
 	lq.pred.cand[lq.pred.cand<0] <- min_lq;
 	iops.pred.cand<-1/lq.pred.cand*1000;
-	##print(iops.pred.cand);
+	###print(iops.pred.cand);
 
 	src.aggr<-W[w.src.new ,c("random", "read", "size", "oio", "iops_pred")];	
 	dst.aggr<-W[w.dst.new ,c("random", "read", "size", "oio", "iops_pred")];	
 	dst.aggr[nrow(dst.aggr), "iops_pred"]<-iops.pred.cand[1,1];
-	##print(src.aggr);
-	##print(dst.aggr);
+	#print(src.aggr);
+	#print(dst.aggr);
 	w.src.aggr<-fn.aggr(src.aggr);
 	w.dst.aggr<-fn.aggr(dst.aggr);
-	##print (w.src.aggr);	
-	##print (w.dst.aggr);	
+	###print (w.src.aggr);	
+	###print (w.dst.aggr);	
 
 	#predict new latencies	
 	lq.pred.src<-predict(pm[[s.src]], w.src.aggr, interval="prediction");
 	lq.pred.dst<-predict(pm[[s.cand]], w.dst.aggr, interval="prediction");
-	##print (lq.pred.src);
-	##print (lq.pred.dst);
+	###print (lq.pred.src);
+	###print (lq.pred.dst);
 	lq.pred.src[lq.pred.src<0] = min_lq;
 	lq.pred.dst[lq.pred.dst<0] = min_lq;
 	lat.pred.src<-lq.pred.src*w.src.aggr$oio;
@@ -233,6 +243,8 @@ fn.updateMerit<-function(w.cand, s.cand, W, S) {
 	p[as.character(s.cand),]<-lat.pred.dst;
 	#print (p)
 	merit<-apply(p, 2, fn.Merit);
+	#cat("Merit ",merit, "\n"); 
+	#cat("End Merit======================================\n");
 	return (merit);
 }
 
@@ -241,11 +253,11 @@ fn.new.temperature<-function(T) {
 }
 
 fn.goodness<-function(E, Enew, T) {
-	##print (E);
-	##print (Enew);
+	###print (E);
+	###print (Enew);
 	if (is.nan(E) | is.nan(Enew)) {
-		print (paste("E:", E));
-		print (paste("Enew:", Enew));
+		#print (paste("E:", E));
+		#print (paste("Enew:", Enew));
 	}
 	if (Enew > E) {
 		return (exp((E-Enew)/T))
@@ -275,15 +287,15 @@ fn.minimize.merit<-function(W.i, S.i, merit.i) {
 		T<-fn.new.temperature(K/max.cycle);
 		w.cand<-w.cand.list[i];
 		s.cand<-s.cand.list[i];
-		if (fn.S(w.cand) == s.cand) {
+		if (fn.S(w.cand, W) == s.cand) {
 			next();
 		}
 		m.new<-fn.updateMerit(w.cand, s.cand, W, S);
-		##print(w.cand);
-		##print(s.cand);
-		##print(W);
-		##print(S);
-		#print(m.new);
+		###print(w.cand);
+		###print(s.cand);
+		###print(W);
+		###print(S);
+		##print(m.new);
 		if (fn.goodness(m[1], m.new[1], T)>runif(1,0,1)) {
 			m.list<-c(m.list, m.new["lat_pred"]);
 			#Accept the move
@@ -327,7 +339,7 @@ fn.minimize.merit<-function(W.i, S.i, merit.i) {
 			S$iops_high<-1/S$lq_low*1000;
 			m<-m.new;
 		}
-		if (m < m.f) {
+		if (m[1] < m.f[1]) {
 			#store the best state seen so far
 			S.f<-S;
 			W.f<-W;
@@ -335,55 +347,65 @@ fn.minimize.merit<-function(W.i, S.i, merit.i) {
 		}
 		K<-K+1;
 	}
-	#if (dev.cur() == 1) {
-		#pdf("sim_aneal_rate.pdf", width=6, height=6, onefile=F);
-		#plot(m.list, ylim=c(50, 790), type="l", xlim=c(1,17), xlab="Sequence of accepted state changes", ylab="Merit");
-		#cl<<-cl+1;
-	#}
-	#else {
-		#print(cl);
-		#lines(m.list, col=cl%%7);
-		#cl<<-cl+1;
-	#}
+	if (dev.cur() == 1) {
+	#	pdf("sim_aneal_rate.pdf", width=6, height=6, onefile=F);
+		plot(m.list, ylim=c(50, 790), type="l", xlim=c(1,17), xlab="Sequence of accepted state changes", ylab="Merit");
+		cl<<-cl+1;
+	}
+	else {
+		lines(m.list, col=cl%%7);
+		cl<<-cl+1;
+	}
 
-	##print (m.list);
+	###print (m.list);
 	return (list(S=S.f, W=W.f, m=m.f));
 }
 
 fn.load.balance<-function(S,W) {
 	m.i<-fn.Merit(S$lat_pred); #initial merit;
-	print(paste("initial_merit", m.i));
+	#print(paste("initial_merit", m.i));
 	m.list<-data.frame(); #initial merit list
 	
 	S.f<-fn.minimize.merit(W, S, m.i); #find pseudo-optimal
 	moved<-S.f$W[S.f$W$datastore != W$datastore, c("VM", "datastore")];
-	#print(S.f)
-	#print(moved);
+	##print(S.f)
+	##print(moved);
 	
 	m.next<-m.i;
 	ds.lat<-list();
 	ds.lat[["init"]]<-c(S$lat_pred, m.i);
 	for (i in 1:nrow(moved)) {
+			#print (W);
+			#print (S);
+			#print (moved);
 		for (j in 1:nrow(moved)) {
-			m.new<-fn.updateMerit(moved[j,1], moved[j,2], W, S);
+			#print ("START!!");
+			#print ("START!!");
+			#print ("START!!");
+			#print (moved[j,1]);
+			#print (moved[j,2]);
+			#print (S);
+			#print (W);
+			m.new<-fn.updateMerit(moved[j,"VM"], as.character(moved[j,"datastore"]), W, S);
+			#print (m.new);
 			m.list<-rbind(m.list, as.data.frame(c(m.new, as.vector(moved[j,])))); 
 		}
 		m.list<-m.list[order(m.list$lat_pred),];
 		#print(m.list);
-		if (m.list[1,1] > m.next) {
-		#	#print(m.next);
-		#	#print(m.list);
+		#print(paste("m.new:",m.new));
+		##print(m.next);
+		if (m.list[1,1] > (m.next-10)) {
 			break();
 		}
-		print( paste("Move VM", m.list[1,4], W$workload[W$VM==m.list[1,4]], "of", fn.S(m.list[1,4]), "to", m.list[1,5], ":", m.next[1], "->", m.list[1,1]));
+		cat("Move VM", m.list[1,4], W$workload[W$VM==m.list[1,4]], "of", as.character(fn.S(m.list[1,4], W)), "to", as.character(m.list[1,5]), ":", m.next[1], "->", m.list[1,1], "\n");
 		m.next<-m.list[1,1];
 		w.cand<-m.list[1,4];
 		s.cand<-m.list[1,5];
 		m.list<-data.frame();
 		moved<-moved[-which(moved$VM==w.cand),]
-		#print(moved);
-		#print(w.cand);
-		#print(s.cand);
+		##print(moved);
+		##print(w.cand);
+		##print(s.cand);
     W[W$VM==w.cand,"datastore"]<-s.cand;
     pred<-apply(W,1, function(x)(predict(pm[[x["datastore"]]], data.frame(random=as.numeric(x["random"]), read=as.numeric(x["read"]), size=as.numeric(x["size"])), interval="prediction")));
 
@@ -422,10 +444,16 @@ fn.load.balance<-function(S,W) {
     S$iops_low<-1/S$lq_high*1000;
     S$iops_high<-1/S$lq_low*1000;
 
-		ds.lat[[i+1]]<-c(S$lat_pred, m.next);
+		lat_pred<-vector();
+		lat_pred[1]<-S["E1", "lat_pred"];
+		lat_pred[2]<-S["E2", "lat_pred"];
+		lat_pred[3]<-S["N1", "lat_pred"];
+		lat_pred[4]<-S["N2", "lat_pred"];
+		lat_pred[is.na(lat_pred)]<-0;
+		ds.lat[[i+1]]<-c(lat_pred,  m.next);
 		
-		#print(W);
-		#print(S);
+		##print(W);
+		##print(S);
 		out<-list();
 	 	out[["E1"]]<-W$workload[W$datastore=="E1"];
 	 	out[["E2"]]<-W$workload[W$datastore=="E2"];
@@ -433,10 +461,10 @@ fn.load.balance<-function(S,W) {
 	 	out[["N2"]]<-W$workload[W$datastore=="N2"];
 		#max.length<-max(unlist(lapply(out, length)));
 		max.length<-8;
-		#print(length(out[["E1"]]));
-		#print(length(out[["E2"]]));
-		#print(length(out[["N1"]]));
-		#print(length(out[["N2"]]));
+		##print(length(out[["E1"]]));
+		##print(length(out[["E2"]]));
+		##print(length(out[["N1"]]));
+		##print(length(out[["N2"]]));
 		out[["E1"]]<-c(out[["E1"]], rep("Idle", max.length-length(out[["E1"]])));
 		out[["E2"]]<-c(out[["E2"]], rep("Idle", max.length-length(out[["E2"]])));
 		out[["N1"]]<-c(out[["N1"]], rep("Idle", max.length-length(out[["N1"]])));
@@ -447,10 +475,10 @@ fn.load.balance<-function(S,W) {
 		#out<-rbind(out, c("E2", W$workload[W$datastore=="E2"]));
 		#out<-rbind(out, c("N1", W$workload[W$datastore=="N1"]));
 		#out<-rbind(out, c("N2", W$workload[W$datastore=="N2"]));
-		#print(out)
+		##print(out)
 	}
-	print (paste("final merit", m.next));
-	print("");
+	#print (paste("final merit", m.next));
+	#print("");
 	return(list(S=S,W=W,m=m.next, o=data, d=ds.lat));	
 }
 
@@ -459,9 +487,10 @@ init<-list.files("load_balance_test/init");
 Idle<-c("Idle", "Idle", "Idle", "Idle");
 S.f<-list();
 for (i in init[1:6]) {
+	cat("\ntest",i,"\n");
 	data<-read.table(paste("load_balance_test/init/",i, sep=""));
 	data<-cbind(data, Idle, Idle, Idle);
-	#print (data);
+	##print (data);
 	W<-fn.generate.W(data);
 	W<-fn.predict.W(W, pm);
 	S<-fn.generate.S(W, pm);
@@ -470,11 +499,20 @@ for (i in init[1:6]) {
 
 data<-data.frame(row.names=c("E1", "E2", "N1", "N2"));
 len<-vector();
+lat<-list();
+num<-1;
 for (i in S.f) {
 	data<-cbind(data, i$o[,-1]);
 	len<-c(len,ncol(i$o[,-1])/8);
+	lat[[num]]<-do.call(rbind, i$d);
+	pdf(paste(num,"latency_reduction.pdf",sep=""), width=6, height=6, onefile=F);
+	matplot(lat[[num]][,-5], type="b", pch=1:4, xlab="number of moves", ylab="Latency(ms)");
+	legend("topright", c("E1", "E2", "N1", "N2"), pch=1:4, lty=1:4, col=1:4);
+	dev.off();
+	num<-num+1;
 }
 write.table(data, file=full.run, row.names=T, col.names=F, sep=" ", quote=F, append=F);
+
 	
 		
 #fn.loadbalance<-function(S,W) {
