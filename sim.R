@@ -1,4 +1,4 @@
-#!/home/parkx408/root/bin/Rscript --verbose
+e#!/home/parkx408/root/bin/Rscript --verbose
 #!/usr/bin/Rscript --verbose
 
 ##################
@@ -349,7 +349,7 @@ fn.minimize.merit<-function(W.i, S.i, merit.i) {
 	}
 	if (dev.cur() == 1) {
 	#	pdf("sim_aneal_rate.pdf", width=6, height=6, onefile=F);
-		plot(m.list, ylim=c(50, 790), type="l", xlim=c(1,17), xlab="Sequence of accepted state changes", ylab="Merit");
+		plot(m.list, ylim=c(50, 1200), type="l", xlim=c(1,25), xlab="Sequence of accepted state changes", ylab="Merit");
 		cl<<-cl+1;
 	}
 	else {
@@ -394,7 +394,7 @@ fn.load.balance<-function(S,W) {
 		#print(m.list);
 		#print(paste("m.new:",m.new));
 		##print(m.next);
-		if (m.list[1,1] > (m.next-10)) {
+		if (m.list[1,1] > (m.next-20)) {
 			break();
 		}
 		cat("Move VM", m.list[1,4], W$workload[W$VM==m.list[1,4]], "of", as.character(fn.S(m.list[1,4], W)), "to", as.character(m.list[1,5]), ":", m.next[1], "->", m.list[1,1], "\n");
@@ -450,7 +450,9 @@ fn.load.balance<-function(S,W) {
 		lat_pred[3]<-S["N1", "lat_pred"];
 		lat_pred[4]<-S["N2", "lat_pred"];
 		lat_pred[is.na(lat_pred)]<-0;
-		ds.lat[[i+1]]<-c(lat_pred,  m.next);
+		lat_pred<-lat_pred+rnorm(4, 10, 10);
+		#ds.lat[[i+1]]<-c(lat_pred,  m.next);
+		ds.lat[[i+1]]<-c(lat_pred, fn.Merit(lat_pred));
 		
 		##print(W);
 		##print(S);
@@ -486,7 +488,7 @@ fn.load.balance<-function(S,W) {
 init<-list.files("load_balance_test/init");
 Idle<-c("Idle", "Idle", "Idle", "Idle");
 S.f<-list();
-for (i in init[1:6]) {
+for (i in init) {
 	cat("\ntest",i,"\n");
 	data<-read.table(paste("load_balance_test/init/",i, sep=""));
 	data<-cbind(data, Idle, Idle, Idle);
@@ -505,13 +507,21 @@ for (i in S.f) {
 	data<-cbind(data, i$o[,-1]);
 	len<-c(len,ncol(i$o[,-1])/8);
 	lat[[num]]<-do.call(rbind, i$d);
-	pdf(paste(num,"latency_reduction.pdf",sep=""), width=6, height=6, onefile=F);
-	matplot(lat[[num]][,-5], type="b", pch=1:4, xlab="number of moves", ylab="Latency(ms)");
-	legend("topright", c("E1", "E2", "N1", "N2"), pch=1:4, lty=1:4, col=1:4);
+	pdf(paste("plots/", num, "latency_reduction.pdf",sep=""), width=6, height=6, onefile=F);
+	#png(paste("plots/", num, "latency_reduction.png",sep=""), width=6, height=6);
+	matplot(lat[[num]][,-5], type="b", pch=1:4, xlab="Number of moves", ylab="Average latency(ms)", col=c(1,2,4,6));
+	legend("topright", c("E1", "E2", "N1", "N2"), pch=1:4, lty=1:4, col=c(1,2,4,6));
 	dev.off();
 	num<-num+1;
 }
 write.table(data, file=full.run, row.names=T, col.names=F, sep=" ", quote=F, append=F);
+
+before<-do.call(rbind, (lapply(lat, function(x)(x[1,-5]))));
+after<-do.call(rbind, (lapply(lat, function(x)(x[nrow(x), -5]))));
+
+boxplot(before, ylim=c(0,1800), xlab="Data stores", ylab="Average latency(ms)", names=c("E1", "E2", "N1", "N2"));
+boxplot(after, ylim=c(0,1800), xlab="Data stores", ylab="Average latency(ms)", names=c("E1", "E2", "N1", "N2"));
+
 
 	
 		
